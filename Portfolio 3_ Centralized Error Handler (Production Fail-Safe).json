@@ -1,0 +1,276 @@
+{
+  "name": "Portfolio 3: Centralized Error Handler (Production Fail-Safe)",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -48
+      ],
+      "id": "8f5bf773-8e5e-4535-a181-fcc1667bfaf3",
+      "name": "Special System Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1C8T0czpjNw20Kl0UHpz5mLdQJvlXfzamfprq0EkhJSo",
+          "mode": "list",
+          "cachedResultName": "Centralized Error Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1C8T0czpjNw20Kl0UHpz5mLdQJvlXfzamfprq0EkhJSo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Error_log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1C8T0czpjNw20Kl0UHpz5mLdQJvlXfzamfprq0EkhJSo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "workflowName",
+              "displayName": "workflowName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "workflowId",
+              "displayName": "workflowId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "executionId",
+              "displayName": "executionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "errorMessage",
+              "displayName": "errorMessage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "nodeName",
+              "displayName": "nodeName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        -48
+      ],
+      "id": "f585c711-90f7-4c74-978c-a85fea34f087",
+      "name": "Error Logging",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "D0I4vFupIgPdJfgx",
+          "name": "Google Sheets account enagakristianjay@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "enagakristianjay@gmail.com",
+        "subject": "=🚨 [URGENT] {{ $json.workflowName }} - Production Failure Alert",
+        "message": "=<h3>🚨 Critical Production Error Detected</h3>\n<p>An automated workflow encountered a failure and requires immediate attention.</p>\n\n<table border=\"1\" cellpadding=\"8\" cellspacing=\"0\" style=\"border-collapse: collapse; font-family: sans-serif;\">\n  <tr>\n    <td><strong>Workflow Name</strong></td>\n    <td>{{ $json.workflowName }}</td>\n  </tr>\n  <tr>\n    <td><strong>Execution ID</strong></td>\n    <td>{{ $json.executionId }}</td>\n  </tr>\n  <tr>\n    <td><strong>Failing Node</strong></td>\n    <td>{{ $json.nodeName }}</td>\n  </tr>\n  <tr>\n    <td><strong>Error Message</strong></td>\n    <td><span style=\"color: red;\">{{ $json.errorMessage }}</span></td>\n  </tr>\n  <tr>\n    <td><strong>Timestamp</strong></td>\n    <td>{{ $json.timestamp }}</td>\n  </tr>\n</table>\n\n<p style=\"margin-top: 15px;\">\n  <a href=\"http://localhost:5678/workflow/{{ $json.workflowId }}/executions/{{ $json.executionId }}\" \n     style=\"background-color: #e03131; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;\">\n    🔍 Open Execution #{{ $json.executionId }} in n8n\n  </a>\n</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        -48
+      ],
+      "id": "efda85db-3aa7-4986-92aa-352183568e45",
+      "name": "EmergencyALertEmail",
+      "webhookId": "0b97449e-20cb-49eb-a658-db85cb43bfd2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Tz92W2mMBqoVhpoB",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract error context provided by the n8n Error Trigger\nconst errorData = $input.first().json;\n\nreturn [{\n  json: {\n    workflowName: errorData.workflow?.name || 'Unknown Workflow',\n    workflowId: errorData.workflow?.id || 'N/A',\n    executionId: errorData.execution?.id || 'N/A',\n    errorMessage: errorData.execution?.error?.message || 'No detailed error message provided',\n    nodeName: errorData.execution?.error?.node?.name || 'Unknown Node',\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -48
+      ],
+      "id": "9e1b7ec4-a1c2-44cf-b3be-f7c01b8c3cc2",
+      "name": "Error Data Extraction"
+    },
+    {
+      "parameters": {
+        "content": "📌 PORTFOLIO 3: CENTRALIZED ERROR HANDLER & PRODUCTION FAIL-SAFE\n\n🎯 Business Problem:\nIn production, workflows break silently due to expired API keys, dead endpoints, or corrupt payloads. Without centralized monitoring, broken automations go unnoticed for days, resulting in lost revenue and broken client trust.\n\n🚀 The Solution:\nA account-wide automated fail-safe monitor:\n1. Error Trigger catches failures across all connected production workflows instantly.\n2. JavaScript Code node extracts diagnostic metadata (Workflow Name, Execution ID, Failing Node, Raw Error Message).\n3. Google Sheets appends a timestamped audit record to central log file.\n4. Gmail node triggers an urgent HTML diagnostic alert directly to engineering.\n\n💰 Business Impact & ROI:\n• 99.9% System Uptime & Silent Failure Prevention.\n• Near-zero MTTR (Mean Time To Repair).\n• Proactive incident detection before clients notice issues.",
+        "height": 544,
+        "width": 592,
+        "color": "#B81929"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        -672
+      ],
+      "id": "084df560-ff55-4fe4-8c27-470490d9d746",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "🔍 DIAGNOSTIC EXTRACTION & SYSTEM AUDIT LOG\n\n• JavaScript Data Normalization:\n  Extracts `workflowName`, `executionId`, `nodeName`, and `errorMessage` using optional chaining to prevent secondary script failures.\n\n• Centralized Database Sync:\n  Appends execution metadata to the `Centralized Error Log` sheet (`Error_log` tab) for root-cause analysis and compliance auditing.",
+        "height": 304,
+        "width": 416,
+        "color": "#112B92"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        192,
+        -432
+      ],
+      "id": "4e58f703-0034-451a-bcd7-c55189841358",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "🚨 REAL-TIME INCIDENT ALERT & SYSTEM LINKING\n\n• HTML Email Alert:\n  Sends formatted, color-coded diagnostic tables to enagakristianjay@gmail.com with exact Execution IDs for immediate debugging.\n\n⚙️ How to Connect to Workflows 1 & 2:\n1. Open Workflow 1 & 2 Settings (Gear Icon at top right).\n2. Under \"Error Workflow\", select \"Portfolio 3: Centralized Error Handler\".",
+        "height": 288,
+        "width": 480,
+        "color": "#0B5F89"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -416
+      ],
+      "id": "d0e153a1-195f-49db-9178-3a53dfba05dc",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Special System Trigger": {
+      "main": [
+        [
+          {
+            "node": "Error Data Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Logging": {
+      "main": [
+        [
+          {
+            "node": "EmergencyALertEmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Data Extraction": {
+      "main": [
+        [
+          {
+            "node": "Error Logging",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Manila",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "84235de6-838e-47bb-980b-b4ec23e069de",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c4cd777a5b3ec797918101641527b114bf980b11c0134f7edc5eb4d08953d59"
+  },
+  "nodeGroups": [],
+  "id": "2yoUrGUAyISOvdAX",
+  "tags": [
+    {
+      "updatedAt": "2026-08-02T15:05:16.574Z",
+      "createdAt": "2026-08-02T15:05:16.574Z",
+      "id": "DR2mwbQrmjghmOnX",
+      "name": "v1"
+    },
+    {
+      "updatedAt": "2026-07-30T13:24:38.045Z",
+      "createdAt": "2026-07-30T13:24:38.045Z",
+      "id": "DwYBj19cUeFUwfIQ",
+      "name": "sprint 1 portfolio build"
+    },
+    {
+      "updatedAt": "2026-07-27T01:41:52.052Z",
+      "createdAt": "2026-07-27T01:41:52.052Z",
+      "id": "mWLPR4lPdrQ8hfmc",
+      "name": "portfolio"
+    }
+  ]
+}
