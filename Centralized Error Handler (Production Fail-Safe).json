@@ -1,5 +1,4 @@
 {
-  "name": "Portfolio 3: Centralized Error Handler (Production Fail-Safe)",
   "nodes": [
     {
       "parameters": {},
@@ -7,7 +6,7 @@
       "typeVersion": 1,
       "position": [
         0,
-        -48
+        48
       ],
       "id": "8f5bf773-8e5e-4535-a181-fcc1667bfaf3",
       "name": "Special System Trigger"
@@ -104,7 +103,7 @@
       "typeVersion": 4.7,
       "position": [
         448,
-        -48
+        48
       ],
       "id": "f585c711-90f7-4c74-978c-a85fea34f087",
       "name": "Error Logging",
@@ -146,14 +145,14 @@
       "typeVersion": 2,
       "position": [
         224,
-        -48
+        48
       ],
       "id": "9e1b7ec4-a1c2-44cf-b3be-f7c01b8c3cc2",
       "name": "Error Data Extraction"
     },
     {
       "parameters": {
-        "content": "📌 PORTFOLIO 3: CENTRALIZED ERROR HANDLER & PRODUCTION FAIL-SAFE\n\n🎯 Business Problem:\nIn production, workflows break silently due to expired API keys, dead endpoints, or corrupt payloads. Without centralized monitoring, broken automations go unnoticed for days, resulting in lost revenue and broken client trust.\n\n🚀 The Solution:\nA account-wide automated fail-safe monitor:\n1. Error Trigger catches failures across all connected production workflows instantly.\n2. JavaScript Code node extracts diagnostic metadata (Workflow Name, Execution ID, Failing Node, Raw Error Message).\n3. Google Sheets appends a timestamped audit record to central log file.\n4. Gmail node triggers an urgent HTML diagnostic alert directly to engineering.\n\n💰 Business Impact & ROI:\n• 99.9% System Uptime & Silent Failure Prevention.\n• Near-zero MTTR (Mean Time To Repair).\n• Proactive incident detection before clients notice issues.",
+        "content": "📌 CENTRALIZED ERROR HANDLER & PRODUCTION FAIL-SAFE\n\n🎯 Business Problem:\nIn production, workflows break silently due to expired API keys, dead endpoints, or corrupt payloads. Without centralized monitoring, broken automations go unnoticed for days, resulting in lost revenue and broken client trust.\n\n🚀 The Solution:\nA account-wide automated fail-safe monitor:\n1. Error Trigger catches failures across all connected production workflows instantly.\n2. JavaScript Code node extracts diagnostic metadata (Workflow Name, Execution ID, Failing Node, Raw Error Message).\n3. Google Sheets appends a timestamped audit record to central log file.\n4. Gmail node triggers an urgent HTML diagnostic alert directly to engineering.\n\n💰 Business Impact & ROI:\n• 99.9% System Uptime & Silent Failure Prevention.\n• Near-zero MTTR (Mean Time To Repair).\n• Proactive incident detection before clients notice issues.",
         "height": 544,
         "width": 592,
         "color": "#B81929"
@@ -161,8 +160,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -432,
-        -672
+        -512,
+        -560
       ],
       "id": "084df560-ff55-4fe4-8c27-470490d9d746",
       "name": "Sticky Note"
@@ -177,15 +176,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        192,
-        -432
+        96,
+        -512
       ],
       "id": "4e58f703-0034-451a-bcd7-c55189841358",
       "name": "Sticky Note1"
     },
     {
       "parameters": {
-        "content": "🚨 REAL-TIME INCIDENT ALERT & SYSTEM LINKING\n\n• HTML Email Alert:\n  Sends formatted, color-coded diagnostic tables to enagakristianjay@gmail.com with exact Execution IDs for immediate debugging.\n\n⚙️ How to Connect to Workflows 1 & 2:\n1. Open Workflow 1 & 2 Settings (Gear Icon at top right).\n2. Under \"Error Workflow\", select \"Portfolio 3: Centralized Error Handler\".",
+        "content": "🚨 REAL-TIME INCIDENT ALERT & SYSTEM LINKING\n\n• HTML Email Alert & Slack Alert:\n  Sends formatted, color-coded diagnostic tables to enagakristianjay@gmail.com with exact Execution IDs for immediate debugging.\n\n⚙️ How to Connect to Workflows 1 & 2:\n1. Open Workflow 1 & 2 Settings (Gear Icon at top right).\n2. Under \"Error Workflow\", select \"Portfolio 3: Centralized Error Handler\".",
         "height": 288,
         "width": 480,
         "color": "#0B5F89"
@@ -193,14 +192,44 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        640,
-        -416
+        528,
+        -512
       ],
       "id": "d0e153a1-195f-49db-9178-3a53dfba05dc",
       "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BP9HMDCD7",
+          "mode": "list",
+          "cachedResultName": "error-workflow"
+        },
+        "text": "=🚨 *PRODUCTION ERROR ALERT* 🚨  *Workflow Name:* {{ $json.workflowName }} *Execution ID:* {{ $json.executionId }} *Failing Node:* {{ $json.nodeName }} *Error Message:* {{ $json.errorMessage }}  🔗 <{{ $json.executionUrl }}|👉 Click Here to Inspect Execution Log>",
+        "otherOptions": {
+          "includeLinkToWorkflow": true,
+          "mrkdwn": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        672,
+        144
+      ],
+      "id": "cda0f37c-0c89-44f5-b335-f4083cd818e0",
+      "name": "Slack Alert",
+      "webhookId": "fc80dedf-8cab-4da1-b9ed-499a0cc71d26",
+      "credentials": {
+        "slackApi": {
+          "id": "CAfJanGAVuxflX0K",
+          "name": "Slack account Bot"
+        }
+      }
     }
   ],
-  "pinData": {},
   "connections": {
     "Special System Trigger": {
       "main": [
@@ -220,6 +249,11 @@
             "node": "EmergencyALertEmail",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Slack Alert",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -236,41 +270,9 @@
       ]
     }
   },
-  "active": true,
-  "settings": {
-    "executionOrder": "v1",
-    "binaryMode": "separate",
-    "availableInMCP": false,
-    "timeSavedMode": "fixed",
-    "timezone": "Asia/Manila",
-    "callerPolicy": "workflowsFromSameOwner",
-    "executionTimeout": -1
-  },
-  "versionId": "84235de6-838e-47bb-980b-b4ec23e069de",
+  "pinData": {},
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "8c4cd777a5b3ec797918101641527b114bf980b11c0134f7edc5eb4d08953d59"
-  },
-  "nodeGroups": [],
-  "id": "2yoUrGUAyISOvdAX",
-  "tags": [
-    {
-      "updatedAt": "2026-08-02T15:05:16.574Z",
-      "createdAt": "2026-08-02T15:05:16.574Z",
-      "id": "DR2mwbQrmjghmOnX",
-      "name": "v1"
-    },
-    {
-      "updatedAt": "2026-07-30T13:24:38.045Z",
-      "createdAt": "2026-07-30T13:24:38.045Z",
-      "id": "DwYBj19cUeFUwfIQ",
-      "name": "sprint 1 portfolio build"
-    },
-    {
-      "updatedAt": "2026-07-27T01:41:52.052Z",
-      "createdAt": "2026-07-27T01:41:52.052Z",
-      "id": "mWLPR4lPdrQ8hfmc",
-      "name": "portfolio"
-    }
-  ]
+  }
 }
